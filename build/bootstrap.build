@@ -1,0 +1,6 @@
+project = opengl-mandelbrot-shader
+
+using config
+using test
+using install
+using dist
