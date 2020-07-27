@@ -34,9 +34,12 @@ const char* vertex_shader_text =
 const char* fragment_shader_text =
     "#version 330\n"
     "in vec2 pos;"
+    "uniform vec2 julia;"
     "void main(){"
-    "  vec2 c = pos;"
-    "  vec2 z = vec2(0.0, 0.0);"
+    // "  vec2 c = pos;"
+    // "  vec2 z = vec2(0.0, 0.0);"
+    "  vec2 c = julia;"
+    "  vec2 z = pos;"
     "  int it = 0;"
     "  int max_it = 1000;"
     "  for (; (dot(z, z) < 4.0) && (it < max_it); ++it){"
@@ -57,8 +60,10 @@ GLuint triangle_buffer;
 GLuint vertex_array;
 GLuint program;
 GLint mvp_location;
+GLint julia_location;
 glm::vec2 origin{-0.5f, 0.0f};
 float yfov = 2.5f;
+glm::vec2 julia{0.0f, 0.0f};
 glm::vec2 mouse_pos;
 glm::vec2 old_mouse_pos{};
 
@@ -83,6 +88,13 @@ int main(void) {
     if (state == GLFW_PRESS) {
       const auto mouse_move = mouse_pos - old_mouse_pos;
       origin -= mouse_move * yfov / float(height);
+      resize();
+    }
+
+    state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+    if (state == GLFW_PRESS) {
+      const auto mouse_move = mouse_pos - old_mouse_pos;
+      julia -= mouse_move * yfov / float(height);
       resize();
     }
 
@@ -144,6 +156,7 @@ void init_shader_program() {
   glLinkProgram(program);
 
   mvp_location = glGetUniformLocation(program, "MVP");
+  julia_location = glGetUniformLocation(program, "julia");
   glUseProgram(program);
 }
 
@@ -177,6 +190,7 @@ void resize() {
                  origin.y + 0.5f * yfov, origin.y - 0.5f * yfov, 0.1f, 100.0f) *
       mvp;
   glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+  glUniform2f(julia_location, julia.x, julia.y);
   update = 2;
 }
 
