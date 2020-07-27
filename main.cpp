@@ -43,7 +43,7 @@ const char* fragment_shader_text =
     "    vec2 tmp = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y);"
     "    z = tmp + c;"
     "  }"
-    "  float scale = -log(float(it + 1) / max_it) / log(max_it);"
+    "  float scale = -log(float(it + 1) / max_it) / log(float(max_it));"
     "  gl_FragColor = vec4(scale, scale, scale, 1.0);"
     "}";
 
