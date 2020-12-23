@@ -31,6 +31,17 @@ const char* vertex_shader_text =
     "  pos = vPos;"
     "}";
 
+// complex dz{1, 0};
+//     int it = 0;
+//     for (; it < max_iteration; ++it) {
+//       dz = 2.0f * z * dz;
+//       z = z * z + coeff;
+//       if (norm(z) > 1e12f) break;
+//     }
+//     const auto tmp = abs(z);
+//     if (tmp < 2) return 0.0f;
+//     return tmp * log(tmp) / abs(dz);
+
 const char* fragment_shader_text =
     "#version 330\n"
     "in vec2 pos;"
@@ -40,13 +51,31 @@ const char* fragment_shader_text =
     // "  vec2 z = vec2(0.0, 0.0);"
     "  vec2 c = julia;"
     "  vec2 z = pos;"
+
+    // "  int it = 0;"
+    // "  int max_it = 1000;"
+    // "  for (; (dot(z, z) < 4.0) && (it < max_it); ++it){"
+    // "    vec2 tmp = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y);"
+    // "    z = tmp + c;"
+    // "  }"
+    // "  float scale = -log(float(it + 1) / max_it) / log(float(max_it));"
+
+    "  vec2 dz = vec2(1, 0);"
     "  int it = 0;"
     "  int max_it = 1000;"
-    "  for (; (dot(z, z) < 4.0) && (it < max_it); ++it){"
+    "  for (; it < max_it; ++it) {"
+    "    dz = vec2(2.0 * (z.x * dz.x - z.y * dz.y), "
+    "              2.0 * (z.x * dz.y + z.y * dz.x));"
     "    vec2 tmp = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y);"
     "    z = tmp + c;"
+    "    float norm = z.x * z.x + z.y * z.y;"
+    "    if (norm > 1e12) break;"
     "  }"
-    "  float scale = -log(float(it + 1) / max_it) / log(float(max_it));"
+    "  float value = sqrt(z.x * z.x + z.y * z.y);"
+    "  float dz_value = sqrt(dz.x * dz.x + dz.y * dz.y);"
+    "  float scale = 0;"
+    "  if (value >= 2) scale = value * log(value) / dz_value;"
+    "  scale = sqrt(sqrt(scale));"
     "  gl_FragColor = vec4(scale, scale, scale, 1.0);"
     "}";
 
